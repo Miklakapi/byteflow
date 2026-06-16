@@ -512,3 +512,113 @@ func TestMustParseRateInvalidValue(t *testing.T) {
 
 	_ = MustParseRate("10 Mbps")
 }
+
+func TestRateBitConversions(t *testing.T) {
+	tests := []struct {
+		name     string
+		rate     Rate
+		expected float64
+		actual   func(Rate) float64
+	}{
+		{
+			name:     "bits per second",
+			rate:     1 * Bps,
+			expected: 8,
+			actual:   Rate.BitsPerSecond,
+		},
+		{
+			name:     "kilobits per second",
+			rate:     125 * Bps,
+			expected: 1,
+			actual:   Rate.KilobitsPerSecond,
+		},
+		{
+			name:     "megabits per second",
+			rate:     125 * KBps,
+			expected: 1,
+			actual:   Rate.MegabitsPerSecond,
+		},
+		{
+			name:     "gigabits per second",
+			rate:     125 * MBps,
+			expected: 1,
+			actual:   Rate.GigabitsPerSecond,
+		},
+		{
+			name:     "terabits per second",
+			rate:     125 * GBps,
+			expected: 1,
+			actual:   Rate.TerabitsPerSecond,
+		},
+		{
+			name:     "negative megabits per second",
+			rate:     -125 * KBps,
+			expected: -1,
+			actual:   Rate.MegabitsPerSecond,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actualValue := test.actual(test.rate)
+
+			if actualValue != test.expected {
+				t.Fatalf("expected %v, got %v", test.expected, actualValue)
+			}
+		})
+	}
+}
+
+func TestRateBitString(t *testing.T) {
+	tests := []struct {
+		name     string
+		rate     Rate
+		expected string
+	}{
+		{
+			name:     "bits per second",
+			rate:     1 * Bps,
+			expected: "8 bps",
+		},
+		{
+			name:     "kilobits per second",
+			rate:     125 * Bps,
+			expected: "1 Kbps",
+		},
+		{
+			name:     "megabits per second",
+			rate:     125 * KBps,
+			expected: "1 Mbps",
+		},
+		{
+			name:     "gigabits per second",
+			rate:     125 * MBps,
+			expected: "1 Gbps",
+		},
+		{
+			name:     "terabits per second",
+			rate:     125 * GBps,
+			expected: "1 Tbps",
+		},
+		{
+			name:     "fractional megabits per second",
+			rate:     187500 * Bps,
+			expected: "1.5 Mbps",
+		},
+		{
+			name:     "negative megabits per second",
+			rate:     -125 * KBps,
+			expected: "-1 Mbps",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actualValue := test.rate.BitString()
+
+			if actualValue != test.expected {
+				t.Fatalf("expected %q, got %q", test.expected, actualValue)
+			}
+		})
+	}
+}
