@@ -86,7 +86,7 @@ func (size Size) String() string {
 
 // BinaryString returns the size formatted using binary byte units.
 //
-// The result uses B, KiB, MiB, GiB or TiB depending on the size value.
+// The result uses B, KiB, MiB, GiB or TiB depending on the absolute size value.
 // Fractional values are rounded to two decimal places and trailing zeros are removed.
 func (size Size) BinaryString() string {
 	unitValue, unitName := size.binaryFormatUnit()
@@ -96,7 +96,7 @@ func (size Size) BinaryString() string {
 
 // DecimalString returns the size formatted using decimal byte units.
 //
-// The result uses B, KB, MB, GB or TB depending on the size value.
+// The result uses B, KB, MB, GB or TB depending on the absolute size value.
 // Fractional values are rounded to two decimal places and trailing zeros are removed.
 func (size Size) DecimalString() string {
 	unitValue, unitName := size.decimalFormatUnit()
@@ -105,14 +105,16 @@ func (size Size) DecimalString() string {
 }
 
 func (size Size) binaryFormatUnit() (Size, string) {
+	absoluteSize := size.absoluteFloat()
+
 	switch {
-	case size >= TiB:
+	case absoluteSize >= float64(TiB):
 		return TiB, "TiB"
-	case size >= GiB:
+	case absoluteSize >= float64(GiB):
 		return GiB, "GiB"
-	case size >= MiB:
+	case absoluteSize >= float64(MiB):
 		return MiB, "MiB"
-	case size >= KiB:
+	case absoluteSize >= float64(KiB):
 		return KiB, "KiB"
 	default:
 		return B, "B"
@@ -120,14 +122,16 @@ func (size Size) binaryFormatUnit() (Size, string) {
 }
 
 func (size Size) decimalFormatUnit() (Size, string) {
+	absoluteSize := size.absoluteFloat()
+
 	switch {
-	case size >= TB:
+	case absoluteSize >= float64(TB):
 		return TB, "TB"
-	case size >= GB:
+	case absoluteSize >= float64(GB):
 		return GB, "GB"
-	case size >= MB:
+	case absoluteSize >= float64(MB):
 		return MB, "MB"
-	case size >= KB:
+	case absoluteSize >= float64(KB):
 		return KB, "KB"
 	default:
 		return B, "B"
@@ -142,6 +146,14 @@ func (size Size) formatWithUnit(unitValue Size, unitName string) string {
 	formattedValue := formatFloat(float64(size) / float64(unitValue))
 
 	return fmt.Sprintf("%s %s", formattedValue, unitName)
+}
+
+func (size Size) absoluteFloat() float64 {
+	if size < 0 {
+		return -float64(size)
+	}
+
+	return float64(size)
 }
 
 func formatFloat(value float64) string {
