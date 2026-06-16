@@ -10,8 +10,8 @@ import (
 const maxInt64 = int64(^uint64(0) >> 1)
 
 var (
-	maxSizeValue = big.NewRat(maxInt64, 1)
-	sizePattern  = regexp.MustCompile(`^\s*([0-9]+(?:\.[0-9]+)?)\s*([A-Za-z]*)\s*$`)
+	maxInt64Value = big.NewRat(maxInt64, 1)
+	sizePattern   = regexp.MustCompile(`^\s*([0-9]+(?:\.[0-9]+)?)\s*([A-Za-z]*)\s*$`)
 )
 
 // ParseSize parses a text value into a Size.
@@ -33,7 +33,7 @@ func ParseSize(value string) (Size, error) {
 	}
 
 	sizeValue := new(big.Rat).Mul(numberValue, big.NewRat(int64(unitMultiplier), 1))
-	if sizeValue.Cmp(maxSizeValue) > 0 {
+	if sizeValue.Cmp(maxInt64Value) > 0 {
 		return 0, fmt.Errorf("size value %q overflows Size", value)
 	}
 
